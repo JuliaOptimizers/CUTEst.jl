@@ -29,12 +29,14 @@ function validate_libcutest()
   tmpdir = mktempdir()
   try
     cd(tmpdir) do
-      outlog = tempname()
-      errlog = tempname()
-      run(pipeline(`$runcutest -p genc -D $hs3`, stdout=outlog, stderr=errlog))
-      print(read(errlog, String))
-      rm(outlog, force=true)
-      rm(errlog, force=true)
+      for prec in ("", "--single")
+        outlog = tempname()
+        errlog = tempname()
+        run(pipeline(`$runcutest -p genc $prec -D $hs3`, stdout=outlog, stderr=errlog))
+        print(read(errlog, String))
+        rm(outlog, force=true)
+        rm(errlog, force=true)
+      end
     end
     return true
   catch
@@ -107,7 +109,7 @@ else
       cd("files") do
         @info("Installing CUTEst")
 
-        lnxurl = "https://raw.githubusercontent.com/abelsiqueira/linux-cutest/v0.4.1/install.sh"
+        lnxurl = "https://raw.githubusercontent.com/abelsiqueira/linux-cutest/v0.4.2/install.sh"
         run(`wget $lnxurl -O install.sh`)
         ENV["C_INCLUDE_PATH"] = joinpath(here, "usr", "include")
         run(`bash install.sh`)
